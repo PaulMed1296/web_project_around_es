@@ -75,14 +75,30 @@
               name="name"
               placeholder="Nombre"
               type="text"
+              required
+              minlength="2"
+              maxlength="40"
             />
+            <span class="popup__error popup__error_type_name"></span>
+
             <input
               class="popup__input popup__input_type_description"
               name="description"
               placeholder="Acerca de mí"
               type="text"
+              required
+              minlength="2"
+              maxlength="200"
             />
-            <button class="button popup__button" type="submit">Guardar</button>
+            <span class="popup__error popup__error_type_description"></span>
+
+            <button
+              class="button popup__button popup__button_disabled"
+              type="submit"
+              disabled
+            >
+              Guardar
+            </button>
           </form>
         </div>
       </div>
@@ -94,14 +110,18 @@
             type="button"
           ></button>
           <h3 class="popup__title">Nuevo lugar</h3>
-          <form class="popup__form" id="new-card-form">
+          <form class="popup__form" id="new-card-form" novalidate>
             <input
               class="popup__input popup__input_type_card-name"
               name="place-name"
               placeholder="Título"
               required
               type="text"
+              minlength="2"
+              maxlength="30"
             />
+            <span class="popup__error popup__error_type_place-name"></span>
+
             <input
               class="popup__input popup__input_type_url"
               name="link"
@@ -109,7 +129,15 @@
               required
               type="url"
             />
-            <button class="button popup__button" type="submit">Crear</button>
+            <span class="popup__error popup__error_type_link"></span>
+
+            <button
+              class="button popup__button popup__button_disabled"
+              type="submit"
+              disabled
+            >
+              Crear
+            </button>
           </form>
         </div>
       </div>
