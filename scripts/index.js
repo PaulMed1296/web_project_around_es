@@ -1,3 +1,7 @@
+import Card from "./card.js";
+import FormValidator from "./FormValidator.js";
+import { openModal1, closeModal1, handleOverlayClick } from "./utils.js";
+
 let initialCards = [
   {
     name: "Valle de Yosemite",
@@ -51,20 +55,19 @@ const inputList = Array.from(formElement.querySelectorAll(".popup__input"));
 const newCardButton = newCardForm.querySelector(".popup__button");
 const newCardInputs = Array.from(newCardForm.querySelectorAll(".popup__input"));
 const popups = Array.from(document.querySelectorAll(".popup"));
+const validationConfig = {
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+};
+const editProfileValidator = new FormValidator(validationConfig, formElement);
+editProfileValidator.setEventListeners();
+const newCardValidator = new FormValidator(validationConfig, newCardForm);
+newCardValidator.setEventListeners();
 
 function fillProfileForm() {
   inputName.value = profileTitle.textContent;
   inputDescription.value = profileDescription.textContent;
-}
-
-function openModal1(modal) {
-  modal.classList.add("popup_is-opened");
-  document.addEventListener("keydown", handleEscClose);
-}
-
-function closeModal1(modal) {
-  modal.classList.remove("popup_is-opened");
-  document.removeEventListener("keydown", handleEscClose);
 }
 
 function handleProfileFormSubmit(evt) {
@@ -80,8 +83,8 @@ function handleProfileFormSubmit(evt) {
 }
 
 function renderCard(cardData) {
-  const cardElement = getCardElement(cardData);
-  cardContainer.prepend(cardElement);
+  const card = new Card(cardData, "#card__template");
+  cardContainer.prepend(card.getView());
 }
 
 function handleCardFormSubmit(evt) {
@@ -165,21 +168,6 @@ function toggleButtonState(inputs, button) {
   } else {
     button.disabled = true;
     button.classList.add("popup__button_disabled");
-  }
-}
-
-function handleOverlayClick(evt) {
-  if (evt.target === evt.currentTarget) {
-    closeModal1(evt.currentTarget);
-  }
-}
-
-function handleEscClose(evt) {
-  if (evt.key === "Escape") {
-    const openedPopup = document.querySelector(".popup_is-opened");
-    if (openedPopup) {
-      closeModal1(openedPopup);
-    }
   }
 }
 
