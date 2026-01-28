@@ -4,33 +4,7 @@ import FormValidator from "./FormValidator.js";
 import PopupWithImage from "./PopupWithImage.js";
 import PopupWithForm from "./PopupWithForm.js";
 import UserInfo from "./UserInfo.js";
-
-let initialCards = [
-  {
-    name: "Valle de Yosemite",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_yosemite.jpg",
-  },
-  {
-    name: "Lago Louise",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lake-louise.jpg",
-  },
-  {
-    name: "Montañas Calvas",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_bald-mountains.jpg",
-  },
-  {
-    name: "Latemar",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_latemar.jpg",
-  },
-  {
-    name: "Parque Nacional de la Vanoise",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_vanoise.jpg",
-  },
-  {
-    name: "Lago di Braies",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lago.jpg",
-  },
-];
+import Api from "./Api.js";
 
 const profileInfo = document.querySelector(".profile__info");
 const editModal = document.querySelector("#edit-popup");
@@ -60,10 +34,36 @@ const validationConfig = {
   inactiveButtonClass: "popup__button_disabled",
 };
 
+const api = new Api({
+  baseUrl: "https://around-api.es.tripleten-services.com/v1",
+  token: "17f38003-d2f2-4abe-89f4-fd336a117a58",
+});
+
 const userInfo = new UserInfo({
   nameSelector: ".profile__title",
   jobSelector: ".profile__description",
 });
+
+api
+  .getUserInfo()
+  .then((data) => {
+    userInfo.setUserInfo({
+      name: data.name,
+      description: data.about,
+    });
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
+api
+  .getInitialCards()
+  .then((cards) => {
+    cardSection.renderItems(cards);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 const editProfileValidator = new FormValidator(validationConfig, formElement);
 const newCardValidator = new FormValidator(validationConfig, newCardForm);
@@ -76,16 +76,36 @@ newCardValidator.setEventListeners();
 
 const imagePopup = new PopupWithImage("#image-popup");
 const editPopup = new PopupWithForm("#edit-popup", (inputValues) => {
-  userInfo.setUserInfo({
-    name: inputValues.name,
-    description: inputValues.description,
-  });
+  api
+    .setUserInfo({
+      name: inputValues.name,
+      about: inputValues.description,
+    })
+    .then((data) => {
+      userInfo.setUserInfo({
+        name: data.name,
+        description: data.about,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 const newCardPopup = new PopupWithForm("#new-card-popup", (inputValues) => {
-  createCard({
-    name: inputValues["place-name"],
-    link: inputValues.link,
-  });
+  api
+    .addCard({
+      name: inputValues["place-name"],
+      link: inputValues.link,
+    })
+    .then((cardData) => {
+      createCard({
+        name: cardData.name,
+        link: cardData.link,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 function createCard(item) {
@@ -138,13 +158,12 @@ function resetValidation(form, inputs, button) {
 
 const cardSection = new Section(
   {
-    items: initialCards,
     renderer: createCard,
   },
   ".cards__list",
 );
 
-cardSection.renderItems();
+//cardSection.renderItems();
 
 openNewCardModalButton.addEventListener("click", () => {
   resetValidation(newCardForm, newCardInputs, newCardButton);
